@@ -1,0 +1,53 @@
+import pandas as pd
+import joblib
+import os
+import sys
+from sklearn.feature_extraction.text import CountVectorizer
+
+def predict_proba(title, year, plot):
+    model = joblib.load(os.path.dirname(__file__) + '/genero_peli_clf.pkl')
+    proba = model.predict_proba([plot])[0]
+    result = {
+        'Action': proba[0],
+        'Adventure': proba[1],
+        'Animation': proba[2],
+        'Biography': proba[3],
+        'Comedy': proba[4],
+        'Crime': proba[5],
+        'Documentary': proba[6],
+        'Drama': proba[7],
+        'Family': proba[8],
+        'Fantasy': proba[9],
+        'Film-Noir': proba[10],
+        'History': proba[11],
+        'Horror': proba[12],
+        'Music': proba[13],
+        'Musical': proba[14],
+        'Mystery': proba[15],
+        'News': proba[16],
+        'Romance': proba[17],
+        'Sci-Fi': proba[18],
+        'Short': proba[19],
+        'Sport': proba[20],
+        'Thriller': proba[21],
+        'War': proba[22],
+        'Western': proba[23]
+    }
+    return result
+
+
+if __name__ == "__main__":
+    
+    if len(sys.argv) < 4:
+        print('Please provide the movie features (Title, Year, Plot)')
+        
+    else:
+
+        title = sys.argv[1]
+        year = int(sys.argv[2])
+        plot = sys.argv[3]
+
+        p1 = predict_proba(title, year, plot)
+        
+        print(f'Title: {title}, Year: {year}, Plot: {plot}')
+        print('Predicted probabilities: ',p1)

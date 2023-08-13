@@ -1,0 +1,82 @@
+# Importación librerías
+from flask import Flask
+from flask_restx import Api, Resource, fields
+import joblib
+from m09_model_deployment_proyecto2 import predict_proba
+from flask_cors import CORS
+
+# Definición aplicación Flask
+app = Flask(__name__)
+
+# Definición API Flask
+api = Api(
+    app,
+    version='1.0',
+    title='Movie Genre Prediction API',
+    description='Movie Genre Prediction API')
+
+ns = api.namespace('predict',
+     description='Movie Genre Predictor')
+
+# Definición argumentos o parámetros de la API
+parser = api.parser()
+parser.add_argument(
+    'title',
+    type=str,
+    required=True,
+    help='Title of the movie',
+    location='args')
+parser.add_argument(
+    'year',
+    type=int,
+    required=True,
+    help='Year of the movie',
+    location='args')
+parser.add_argument(
+    'plot',
+    type=str,
+    required=True,
+    help='Plot of the movie',
+    location='args')
+
+resource_fields = api.model('Resource', {
+    'Action': fields.Float,
+    'Adventure': fields.Float,
+    'Animation': fields.Float,
+    'Biography': fields.Float,
+    'Comedy': fields.Float,
+    'Crime': fields.Float,
+    'Documentary': fields.Float,
+    'Drama': fields.Float,
+    'Family': fields.Float,
+    'Fantasy': fields.Float,
+    'Film-Noir': fields.Float,
+    'History': fields.Float,
+    'Horror': fields.Float,
+    'Music': fields.Float,
+    'Musical': fields.Float,
+    'Mystery': fields.Float,
+    'News': fields.Float,
+    'Romance': fields.Float,
+    'Sci-Fi': fields.Float,
+    'Short': fields.Float,
+    'Sport': fields.Float,
+    'Thriller': fields.Float,
+    'War': fields.Float,
+    'Western': fields.Float
+})
+
+# Definición de la clase para disponibilización
+# Definición clase PhishingApi
+@ns.route('/')
+class MovieGenreApi(Resource):
+
+   @api.doc(parser=parser)
+   @api.marshal_with(resource_fields)
+   def get(self):
+       args = parser.parse_args()
+       probabilities = predict_proba(args['title'], args['year'], args['plot'])
+       return probabilities
+        
+if __name__ == '__main__':
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
